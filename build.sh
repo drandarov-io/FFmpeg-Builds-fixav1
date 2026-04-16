@@ -35,6 +35,10 @@ cat <<EOF >"$BUILD_SCRIPT"
     git clone --filter=blob:none --branch='$GIT_BRANCH' '$FFMPEG_REPO' ffmpeg
     cd ffmpeg
 
+    # Workaround for https://trac.ffmpeg.org/ticket/11390:
+    # do not generate AV1 timecode SEI through the HEVC path in nvenc.
+    perl -0pi -e 's/\s*\|\|\s*avctx->codec->id\s*==\s*AV_CODEC_ID_AV1//g' libavcodec/nvenc.c
+
     ./configure --prefix=/ffbuild/prefix --pkg-config-flags="--static" \$FFBUILD_TARGET_FLAGS \$FF_CONFIGURE \
         --extra-cflags="\$FF_CFLAGS" --extra-cxxflags="\$FF_CXXFLAGS" --extra-libs="\$FF_LIBS" \
         --extra-ldflags="\$FF_LDFLAGS" --extra-ldexeflags="\$FF_LDEXEFLAGS" \
